@@ -5,7 +5,7 @@
 - Add images and videos to events.
 - Edit and delete events.
 - Receive background browser notifications at the event if the website is not in the foreground.
-- Search for events with their title.
+- Search for events with their title and filter by status.
 
 # Backend 
 - Backend built on NestJs using Cloudinary to store images and videos and Firebase to send browser notifications.
