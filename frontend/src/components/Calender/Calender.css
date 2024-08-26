@@ -16,17 +16,21 @@
   color: #fff;
 }
 
-.searchContainer {
-  position: absolute;
-  top: 4rem;
-  left: 0.5rem;
+.calenderContainer {
   display: flex;
   flex-direction: row;
-  gap: 10px;
-  z-index: 99;
-  border-radius: 1px solid #ccc;
+  width: 100%;
 }
 
-.searchContainer[data-hidden="true"] {
-  display: none;
+.actionContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 10px;
+}
+
+.collapseContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }

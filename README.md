@@ -7,10 +7,6 @@
 - Receive background browser notifications at the event if the website is not in the foreground.
 - Search for events with their title.
 
-## Improvements that can be made:
-- Add snooze and redirects in the notification.
-- Add a filter to filter out events based on time and status.
-
 # Backend 
 - Backend built on NestJs using Cloudinary to store images and videos and Firebase to send browser notifications.
 

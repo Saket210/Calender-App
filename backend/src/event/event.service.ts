@@ -5,6 +5,7 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { FindEventDto } from './dto/find-event.dto';
 import { CronService } from 'src/cron/cron.service';
+import { EventStatus } from '@prisma/client';
 
 @Injectable()
 export class EventService {
@@ -70,6 +71,17 @@ export class EventService {
   }
 
   async find({ startTime, endTime, contains, statuses }: FindEventDto) {
+    await this.prisma.event.updateMany({
+      where: {
+        endTime: {
+          lt: new Date(),
+        },
+      },
+      data: {
+        status: EventStatus.Completed,
+      },
+    });
+
     return await this.prisma.event.findMany({
       where: {
         deleted: false,
