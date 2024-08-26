@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum EventStatus {
+  Scheduled
+  Ongoing
+  Completed
+}
+
+model NotificationToken {
+  id        String    @id @default(uuid()) @map("_id")
+  token     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deleted   Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model Event {
+  id                   String              @id @default(uuid()) @map("_id")
+  title                String
+  description          String
+  startTime            DateTime
+  endTime              DateTime
+  media                Media[]
+  status               EventStatus         @default(Scheduled)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @default(now()) @updatedAt
+  deleted              Boolean             @default(false)
+  deletedAt            DateTime?
+}
+
+enum MediaType {
+  image
+  video
+}
+
+model Media {
+  id           String    @id @default(uuid()) @map("_id")
+  event        Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId      String
+  type         MediaType
+  cloudinaryId String
+  mediaUrl     String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  deleted      Boolean   @default(false)
+  deletedAt    DateTime?
+}

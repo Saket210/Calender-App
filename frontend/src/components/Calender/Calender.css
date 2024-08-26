@@ -1,0 +1,32 @@
+.calenderItem {
+  width: 100%;
+  padding: 8px;
+  background: #ccc;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #1677ff;
+}
+
+.calenderItem h5,
+.calenderItem h6 {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #fff;
+}
+
+.searchContainer {
+  position: absolute;
+  top: 4rem;
+  left: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  z-index: 99;
+  border-radius: 1px solid #ccc;
+}
+
+.searchContainer[data-hidden="true"] {
+  display: none;
+}

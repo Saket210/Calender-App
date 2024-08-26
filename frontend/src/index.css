@@ -1,0 +1,19 @@
+body {
+  margin: 0;
+  font-family: 'Times New Roman', Times, serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.fc-daygrid-event-harness-abs {
+  right: 0px !important;
+  border-radius: 4px !important;
+}
+
+.fc-toolbar-chunk > div {
+  display: flex !important;
+  align-items: center !important;
+  flex-direction: row !important;
+  gap: 10px;
+  margin-top: 10px;
+}
