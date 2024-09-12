@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateEventDto } from './dto/create-event.dto';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { FindEventDto } from './dto/find-event.dto';
-import { CronService } from 'src/cron/cron.service';
+import { CronService } from '../cron/cron.service';
 
 @Injectable()
 export class EventService {
@@ -18,11 +18,16 @@ export class EventService {
     { title, description, startTime, endTime }: CreateEventDto,
     files: Express.Multer.File[],
   ) {
-    const uploadedFiles = await Promise.all(
-      files.map(async (file) => {
-        return await this.cloudinary.uploadFile(file);
-      }),
-    );
+    let uploadedFiles;
+    if (files.length > 0) {
+      uploadedFiles = await Promise.all(
+        files.map(async (file) => {
+          return await this.cloudinary.uploadFile(file);
+        }),
+      );
+    } else {
+      uploadedFiles = [];
+    }
 
     const event = await this.prisma.event.create({
       data: {
@@ -97,7 +102,7 @@ export class EventService {
     { title, description, startTime, endTime, mediaIds = [] }: UpdateEventDto,
     files: Express.Multer.File[],
   ) {
-    console.log(mediaIds);
+    // console.log(mediaIds);
     const uploadeFiles = await Promise.all(
       files.map(async (file) => {
         return await this.cloudinary.uploadFile(file);
@@ -115,11 +120,11 @@ export class EventService {
       throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
     }
 
-    const mediaToRemove = existingEvent.media.filter(
+    const mediaToRemove = existingEvent?.media?.filter(
       (file) => !mediaIds.includes(file.id),
     );
 
-    if (mediaToRemove.length)
+    if (mediaToRemove?.length)
       await Promise.all(
         mediaToRemove.map(
           async (file) => await this.cloudinary.deleteFile(file.cloudinaryId),
@@ -158,7 +163,7 @@ export class EventService {
               })),
             },
           }),
-          ...(mediaToRemove.length && {
+          ...(mediaToRemove?.length && {
             deleteMany: {
               id: { in: mediaToRemove.map((media) => media.id) },
             },
@@ -175,7 +180,7 @@ export class EventService {
       throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
     }
 
-    if (existingEvent.media.length)
+    if (existingEvent.media?.length)
       await Promise.all(
         existingEvent.media.map(
           async (file) => await this.cloudinary.deleteFile(file.cloudinaryId),
