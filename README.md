@@ -5,11 +5,7 @@
 - Add images and videos to events.
 - Edit and delete events.
 - Receive background browser notifications at the event if the website is not in the foreground.
-- Search for events with their title.
-
-## Improvements that can be made:
-- Add snooze and redirects in the notification.
-- Add a filter to filter out events based on time and status.
+- Search for events with their title and filter by status.
 
 # Backend 
 - Backend built on NestJs using Cloudinary to store images and videos and Firebase to send browser notifications.
@@ -62,5 +58,10 @@ $ npm install
 ```bash
 # development
 $ npm run start
+```
+
+## Image:
+![image](https://github.com/user-attachments/assets/ebfa5a5d-c6dd-449c-b1b5-7c74a048a6b3)
+
 
 

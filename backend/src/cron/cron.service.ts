@@ -2,13 +2,18 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CronJob } from 'cron';
 import * as moment from 'moment';
 import { FirebaseService } from '../firebase/firebase.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { EventStatus } from '@prisma/client';
 
 @Injectable()
 export class CronService {
   private readonly logger = new Logger(CronService.name);
   private jobs: { [key: string]: CronJob } = {};
 
-  constructor(private readonly firebaseService: FirebaseService) {}
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   createCronJob(id: string, runAt: string, task: () => void): void {
     const time = moment(runAt);
@@ -16,8 +21,16 @@ export class CronService {
 
     this.logger.log(`Creating job with cron expression: ${cronExpression}`);
 
-    const job = new CronJob(cronExpression, () => {
+    const job = new CronJob(cronExpression, async () => {
       this.logger.log(`Executing job at ${moment().format()}`);
+
+      await this.prisma.event.update({
+        where: { id },
+        data: {
+          status: EventStatus.Ongoing,
+        },
+      });
+
       task();
       job.stop();
       this.logger.log(

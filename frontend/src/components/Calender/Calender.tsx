@@ -7,10 +7,9 @@ import { useCallback, useEffect, useState } from "react";
 import { getToken } from "firebase/messaging";
 import Event from "../Event/Event";
 import axios from "axios";
-import { Input, message, Spin } from "antd";
+import { Checkbox, Col, Collapse, Input, message, Row, Spin } from "antd";
 import "./Calender.css";
 import { messaging } from "../../firebase";
-import { CloseOutlined } from "@ant-design/icons";
 
 enum MediaType {
   image = "image",
@@ -23,10 +22,17 @@ type Media = {
   mediaUrl: string;
 };
 
+enum EventStatus {
+  Scheduled = "Scheduled",
+  Ongoing = "Ongoing",
+  Completed = "Completed",
+}
+
 export type EventType = {
   id: string;
   title: string;
   description: string;
+  status: EventStatus;
   startTime: string;
   endTime: string;
   media: Media[];
@@ -55,8 +61,12 @@ const Calender = () => {
   const [events, setEvents] = useState<CalenderItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [editingEventId, setEditingEventId] = useState<string>();
-  const [openSearch, setOpenSearch] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>("");
+  const [selectedFilters, setSelectedFilters] = useState<EventStatus[]>([
+    EventStatus.Completed,
+    EventStatus.Ongoing,
+    EventStatus.Scheduled,
+  ]);
 
   async function requestPermission() {
     const permission = await Notification.requestPermission();
@@ -93,6 +103,7 @@ const Calender = () => {
         {
           params: {
             contains: searchText === "" ? undefined : searchText,
+            statuses: selectedFilters,
           },
         }
       );
@@ -115,7 +126,7 @@ const Calender = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchText]);
+  }, [searchText, selectedFilters]);
 
   useEffect(() => {
     fetchEvents();
@@ -159,49 +170,100 @@ const Calender = () => {
     );
   };
 
+  const filterCheckboxValue = (value: EventStatus) => {
+    return !!selectedFilters.find((filter) => filter === value);
+  };
+
+  const updateSelectedFilters = (value: EventStatus, checked: boolean) => {
+    if (checked) {
+      setSelectedFilters((prev) => Array.from(new Set([...prev, value])));
+    } else {
+      setSelectedFilters((prev) => prev.filter((item) => item !== value));
+    }
+  };
+
   return (
-    <div>
-      <div className="searchContainer" data-hidden={!openSearch}>
+    <Row gutter={[12, 12]} className="calenderContainer">
+      <Col md={24} lg={4} className="actionContainer">
         <Input.Search
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
         />
-        <CloseOutlined
-          onClick={() => {
-            setSearchText("");
-            setOpenSearch(false);
-          }}
+        <Collapse
+          defaultActiveKey={["1"]}
+          items={[
+            {
+              key: "1",
+              label: "Filter",
+              children: (
+                <div className="collapseContainer">
+                  <Checkbox
+                    checked={filterCheckboxValue(EventStatus.Scheduled)}
+                    onChange={(e) =>
+                      updateSelectedFilters(
+                        EventStatus.Scheduled,
+                        e.target.checked
+                      )
+                    }
+                  >
+                    Scheduled
+                  </Checkbox>
+                  <Checkbox
+                    checked={filterCheckboxValue(EventStatus.Ongoing)}
+                    onChange={(e) =>
+                      updateSelectedFilters(
+                        EventStatus.Ongoing,
+                        e.target.checked
+                      )
+                    }
+                  >
+                    Ongoing
+                  </Checkbox>
+                  <Checkbox
+                    checked={filterCheckboxValue(EventStatus.Completed)}
+                    onChange={(e) =>
+                      updateSelectedFilters(
+                        EventStatus.Completed,
+                        e.target.checked
+                      )
+                    }
+                  >
+                    Completed
+                  </Checkbox>
+                </div>
+              ),
+            },
+          ]}
         />
-      </div>
-      <Spin spinning={loading}>
-        <Fullcalendar
-          events={events}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView={"dayGridMonth"}
-          customButtons={{
-            search: {
-              text: "Search",
-              click: () => {
-                setOpenSearch(true);
+      </Col>
+      <Col md={24} lg={20}>
+        <Spin spinning={loading}>
+          <Fullcalendar
+            events={events}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView={"dayGridMonth"}
+            customButtons={{
+              search: {
+                text: "Search",
               },
-            },
-            filter: {
-              text: "Filter",
-            },
-          }}
-          headerToolbar={{
-            start: "search",
-            center: "prev,title,next",
-            end: "dayGridMonth,timeGridWeek,timeGridDay",
-          }}
-          height={"90vh"}
-          dateClick={() => {
-            setEditingEventId(undefined);
-            setIsModalOpen(true);
-          }}
-          eventContent={renderEventContent}
-        />
-      </Spin>
+              filter: {
+                text: "Filter",
+              },
+            }}
+            headerToolbar={{
+              start: "search",
+              center: "prev,title,next",
+              end: "dayGridMonth,timeGridWeek,timeGridDay",
+            }}
+            height={"90vh"}
+            dateClick={() => {
+              setEditingEventId(undefined);
+              setIsModalOpen(true);
+            }}
+            eventContent={renderEventContent}
+          />
+        </Spin>
+      </Col>
       <Event
         isModalOpen={isModalOpen}
         onCancel={() => {
@@ -211,7 +273,7 @@ const Calender = () => {
         }}
         editingEventId={editingEventId}
       />
-    </div>
+    </Row>
   );
 };
 

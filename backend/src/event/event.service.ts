@@ -75,6 +75,17 @@ export class EventService {
   }
 
   async find({ startTime, endTime, contains, statuses }: FindEventDto) {
+    await this.prisma.event.updateMany({
+      where: {
+        endTime: {
+          lt: new Date(),
+        },
+      },
+      data: {
+        status: EventStatus.Completed,
+      },
+    });
+
     return await this.prisma.event.findMany({
       where: {
         deleted: false,
