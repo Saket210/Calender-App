@@ -20,4 +20,19 @@ export class NotificationService {
       });
     }
   }
+
+  async delete({ token }: SaveTokenDto) {
+    const isTokenAvailable = await this.prisma.notificationToken.findFirst({
+      where: {
+        token,
+      },
+    });
+    if (isTokenAvailable) {
+      await this.prisma.notificationToken.delete({
+        where: {
+          id: isTokenAvailable.id,
+        },
+      });
+    }
+  }
 }

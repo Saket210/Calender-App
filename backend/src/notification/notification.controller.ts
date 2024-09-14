@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Post } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { SaveTokenDto } from './dto/save-token.dto';
 
@@ -9,5 +9,10 @@ export class NotificationController {
   @Post('/')
   async save(@Body() token: SaveTokenDto) {
     return await this.notificationService.save(token);
+  }
+
+  @Delete('/')
+  async delete(token: SaveTokenDto) {
+    return await this.notificationService.delete(token);
   }
 }

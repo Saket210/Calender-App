@@ -5,6 +5,7 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { FindEventDto } from './dto/find-event.dto';
 import { CronService } from '../cron/cron.service';
+import { EventStatus } from '@prisma/client';
 
 @Injectable()
 export class EventService {
@@ -51,18 +52,20 @@ export class EventService {
       },
     });
 
-    const notificationTokens = await this.prisma.notificationToken.findMany();
+    this.cronService.scheduleCronJob(event.id, startTime.toString(), title);
 
-    if (notificationTokens) {
-      notificationTokens.forEach((tokenItem) => {
-        this.cronService.scheduleCronJob(
-          event.id,
-          startTime.toString(),
-          title,
-          tokenItem.token,
-        );
-      });
-    }
+    // const notificationTokens = await this.prisma.notificationToken.findMany();
+
+    // if (notificationTokens) {
+    //   notificationTokens.forEach((tokenItem) => {
+    //     this.cronService.scheduleCronJob(
+    //       event.id,
+    //       startTime.toString(),
+    //       title,
+    //       tokenItem.token,
+    //     );
+    //   });
+    // }
 
     return event;
   }
@@ -142,18 +145,20 @@ export class EventService {
         ),
       );
 
-    const notificationTokens = await this.prisma.notificationToken.findMany();
+    this.cronService.scheduleCronJob(id, startTime.toString(), title);
 
-    if (notificationTokens) {
-      notificationTokens.forEach((tokenItem) => {
-        this.cronService.scheduleCronJob(
-          id,
-          startTime.toString(),
-          title,
-          tokenItem.token,
-        );
-      });
-    }
+    // const notificationTokens = await this.prisma.notificationToken.findMany();
+
+    // if (notificationTokens) {
+    //   notificationTokens.forEach((tokenItem) => {
+    //     this.cronService.scheduleCronJob(
+    //       id,
+    //       startTime.toString(),
+    //       title,
+    //       tokenItem.token,
+    //     );
+    //   });
+    // }
 
     return await this.prisma.event.update({
       where: {

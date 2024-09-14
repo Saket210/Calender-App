@@ -9,7 +9,7 @@ import Event from "../Event/Event";
 import axios from "axios";
 import { Checkbox, Col, Collapse, Input, message, Row, Spin } from "antd";
 import "./Calender.css";
-import { messaging } from "../../firebase";
+import { messaging, onMessageListener } from "../../firebase";
 
 enum MediaType {
   image = "image",
@@ -71,10 +71,10 @@ const Calender = () => {
   async function requestPermission() {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
-      console.log(process.env);
       const token = await getToken(messaging, {
         vapidKey: process.env.REACT_APP_FIREBASE_VAPIDKEY,
       });
+      console.log(token);
       try {
         await axios.post(process.env.REACT_APP_BACKEND_URL + "/notification", {
           token,
@@ -94,6 +94,12 @@ const Calender = () => {
   useEffect(() => {
     requestPermission();
   }, []);
+
+  onMessageListener()
+    .then((payload: any) => {
+      message.success(payload?.data?.title);
+    })
+    .catch((err) => console.log("failed: ", err));
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);

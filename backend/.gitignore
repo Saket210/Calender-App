@@ -43,7 +43,7 @@ lerna-debug.log*
 .env.local
 
 #firebase
-calender-notification*
+*.json
 
 # temp directory
 .temp

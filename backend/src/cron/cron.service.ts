@@ -43,21 +43,30 @@ export class CronService {
     job.start();
   }
 
-  scheduleCronJob(
-    id: string,
-    timestamp: string,
-    title: string,
-    token: string,
-  ): void {
+  scheduleCronJob(id: string, timestamp: string, title: string): void {
     const job = this.jobs[id];
     if (job) {
+      const newTime = moment(timestamp);
+      const newCronTime = `${newTime.minute()} ${newTime.hour()} ${newTime.date()} ${newTime.month() + 1} *`;
+      if (job.cronTime.source === newCronTime) {
+        return;
+      }
       job.stop();
       delete this.jobs[id];
       this.logger.log(`job with ${id} deleted`);
     }
-    this.createCronJob(id, timestamp, () => {
+    this.createCronJob(id, timestamp, async () => {
       const message = 'You have a calendar event';
-      this.firebaseService.sendPushNotification(token, title, message);
+      const tokens = await this.prisma.notificationToken.findMany();
+      if (tokens) {
+        tokens.map((token) =>
+          this.firebaseService.sendPushNotification(
+            token.token,
+            title,
+            message,
+          ),
+        );
+      }
     });
   }
   deleteCronJob(id: string): void {
